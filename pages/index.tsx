@@ -13,6 +13,19 @@ const Home: NextPage = (results) => {
   const returnedData = results;
   console.log(returnedData);
 
+  const fetcher = () =>
+    fetch("/api/pullData", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        json.data;
+        console.log(json);
+      });
+
   return (
     <div>
       <Head>
@@ -22,6 +35,8 @@ const Home: NextPage = (results) => {
       </Head>
 
       <div>Yes</div>
+
+      <button onClick={fetcher}>Merge!</button>
     </div>
   );
 };
@@ -29,7 +44,6 @@ const Home: NextPage = (results) => {
 export default Home;
 
 export const getStaticProps: GetStaticProps = async () => {
-  //TODO Hide Token
   const changeThis = process.env.GITHUB_TOKEN;
 
   const httpLink = createHttpLink({
