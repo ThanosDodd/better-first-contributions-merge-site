@@ -1,6 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { GetStaticProps } from "next";
+import { GetStaticProps, InferGetStaticPropsType } from "next";
 import {
   ApolloClient,
   createHttpLink,
@@ -9,8 +9,14 @@ import {
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
-const Home: NextPage = (results) => {
-  const returnedData = results;
+type Result = {
+  node: object;
+};
+
+const Home: NextPage = ({
+  queryResults,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const returnedData = queryResults;
   console.log(returnedData);
 
   const fetcher = () =>
@@ -23,7 +29,7 @@ const Home: NextPage = (results) => {
       .then((res) => res.json())
       .then((json) => {
         json.data;
-        console.log(json);
+        console.log("API data", json);
       });
 
   return (
@@ -65,7 +71,7 @@ export const getStaticProps: GetStaticProps = async () => {
     cache: new InMemoryCache(),
   });
 
-  const { data } = await client.query({
+  const badData = await client.query({
     query: gql`
       {
         node(id: "MDEwOlJlcG9zaXRvcnk2ODcyMDg2Nw==") {
@@ -93,9 +99,39 @@ export const getStaticProps: GetStaticProps = async () => {
     `,
   });
 
+  const goodData = await client.query({
+    query: gql`
+      {
+        node(id: "R_kgDOHZB9Vg") {
+          ... on Repository {
+            name
+            id
+            stargazers {
+              totalCount
+            }
+            watchers {
+              totalCount
+            }
+            forks {
+              totalCount
+            }
+            issues(states: OPEN) {
+              totalCount
+            }
+            pullRequests(states: OPEN) {
+              totalCount
+            }
+          }
+        }
+      }
+    `,
+  });
+
+  const queryResults: Result[] = [badData.data, goodData.data];
+
   return {
     props: {
-      data: data.node,
+      queryResults,
     },
     revalidate: 10,
   };
