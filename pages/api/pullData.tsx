@@ -8,16 +8,16 @@ import { setContext } from "@apollo/client/link/context";
 
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   async function run() {
-    const changeThis = process.env.GITHUB_TOKEN;
+    const authToken = process.env.GITHUB_TOKEN;
 
     const httpLink = createHttpLink({
       uri: "https://api.github.com/graphql",
     });
 
     const authLink = setContext((_, { headers }) => {
-      const token = changeThis;
+      const token = authToken;
       return {
         headers: {
           ...headers,
@@ -34,7 +34,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
     const { data } = await client.query({
       query: gql`
         {
-          node(id: "MDEwOlJlcG9zaXRvcnk2ODcyMDg2Nw==") {
+          node(id: "R_kgDOHZB9Vg") {
             ... on Repository {
               name
               id
@@ -63,8 +63,8 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (req.method === "POST") {
-    const results = run();
+    const results = await run();
 
-    res.status(200).json({ name: "John Doe", results: results });
+    res.status(200).json({ results: results });
   }
 };

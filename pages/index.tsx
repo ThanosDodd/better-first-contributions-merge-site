@@ -44,14 +44,14 @@ const Home: NextPage = (results) => {
 export default Home;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const changeThis = process.env.GITHUB_TOKEN;
+  const authToken = process.env.GITHUB_TOKEN;
 
   const httpLink = createHttpLink({
     uri: "https://api.github.com/graphql",
   });
 
   const authLink = setContext((_, { headers }) => {
-    const token = changeThis;
+    const token = authToken;
     return {
       headers: {
         ...headers,
