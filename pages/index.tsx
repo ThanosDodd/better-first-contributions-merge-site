@@ -13,6 +13,8 @@ type Result = {
   node: object;
 };
 
+// Component
+
 const Home: NextPage = ({
   queryResults,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
@@ -25,11 +27,11 @@ const Home: NextPage = ({
       headers: {
         "Content-type": "application/json",
       },
+      body: JSON.stringify({ name: "Kermit" }),
     })
       .then((res) => res.json())
       .then((json) => {
-        json.data;
-        console.log("API data", json);
+        console.log("API data", json.results.repository);
       });
 
   return (
@@ -48,6 +50,8 @@ const Home: NextPage = ({
 };
 
 export default Home;
+
+// GetStaticProps
 
 export const getStaticProps: GetStaticProps = async () => {
   const authToken = process.env.GITHUB_TOKEN;

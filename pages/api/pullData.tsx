@@ -34,24 +34,19 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { data } = await client.query({
       query: gql`
         {
-          node(id: "R_kgDOHZB9Vg") {
-            ... on Repository {
-              name
-              id
-              stargazers {
-                totalCount
-              }
-              watchers {
-                totalCount
-              }
-              forks {
-                totalCount
-              }
-              issues(states: OPEN) {
-                totalCount
-              }
-              pullRequests(states: OPEN) {
-                totalCount
+          repository(owner: "ThanosDodd", name: "better-first-contributions") {
+            pullRequests(first: 1, states: [OPEN]) {
+              nodes {
+                title
+                id
+                number
+                additions
+                changedFiles
+                deletions
+                mergeable
+                author {
+                  url
+                }
               }
             }
           }
@@ -59,10 +54,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       `,
     });
 
-    return data.node;
+    return data;
   }
 
   if (req.method === "POST") {
+    console.log(req.body);
+
     const results = await run();
 
     res.status(200).json({ results: results });
