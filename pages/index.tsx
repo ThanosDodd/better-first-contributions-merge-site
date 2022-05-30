@@ -8,6 +8,7 @@ import {
   InMemoryCache,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 type Result = {
   node: object;
@@ -34,6 +35,8 @@ const Home: NextPage = ({
         console.log("API data", json.results.repository);
       });
 
+  const { data: session } = useSession();
+
   return (
     <div>
       <Head>
@@ -42,9 +45,15 @@ const Home: NextPage = ({
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div>Yes</div>
+      {session ? (
+        <button onClick={() => signOut()}>Sign Out</button>
+      ) : (
+        <button onClick={() => signIn()}>Sign In</button>
+      )}
 
-      <button onClick={fetcher}>Merge!</button>
+      {session ? <button onClick={fetcher}>Merge!</button> : <div></div>}
+
+      <div>Yes</div>
     </div>
   );
 };

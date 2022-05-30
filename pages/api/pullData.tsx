@@ -5,7 +5,7 @@ import {
   InMemoryCache,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-
+import { getSession } from "next-auth/react";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -46,6 +46,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 mergeable
                 author {
                   url
+                  login
                 }
               }
             }
@@ -57,7 +58,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return data;
   }
 
-  if (req.method === "POST") {
+  const session = await getSession({ req });
+
+  if (session && req.method === "POST") {
     console.log(req.body);
 
     const results = await run();
