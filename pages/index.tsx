@@ -22,20 +22,20 @@ const Home: NextPage = ({
   const returnedData = queryResults;
   console.log(returnedData);
 
+  const { data: session } = useSession();
+
   const fetcher = () =>
     fetch("/api/pullData", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
       },
-      body: JSON.stringify({ name: "Kermit" }),
+      body: JSON.stringify({ userName: session?.user?.name }),
     })
       .then((res) => res.json())
       .then((json) => {
-        console.log("API data", json.results.repository);
+        console.log("API data", json.results);
       });
-
-  const { data: session } = useSession();
 
   return (
     <div>

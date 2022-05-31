@@ -9,7 +9,7 @@ import { getSession } from "next-auth/react";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  async function run() {
+  async function run(mergeAuthor: string) {
     const authToken = process.env.GITHUB_TOKEN;
 
     const httpLink = createHttpLink({
@@ -32,27 +32,57 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     const { data } = await client.query({
+      // query: gql`
+      //   query RepoFiles($owner: String!, $name: String!) {
+      //     repository(owner: $owner, name: $name) {
+      //       object(expression: "HEAD:") {
+      //         ... on Tree {
+      //           entries {
+      //             name
+      //             type
+      //             object {
+      //               ... on Blob {
+      //                 byteSize
+      //               }
+      //               ... on Tree {
+      //                 entries {
+      //                   name
+      //                   type
+      //                   object {
+      //                     ... on Blob {
+      //                       byteSize
+      //                     }
+      //                   }
+      //                 }
+      //               }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // `,
       query: gql`
         {
-          repository(owner: "ThanosDodd", name: "better-first-contributions") {
-            pullRequests(first: 1, states: [OPEN]) {
-              nodes {
-                title
-                id
-                number
-                additions
-                changedFiles
-                deletions
-                mergeable
-                author {
-                  url
-                  login
+          search(
+            query: "repo:ThanosDodd/better-first-contributions type:pr is:open author:${mergeAuthor}"
+            type: ISSUE
+            first: 2
+          ) {
+            issueCount
+            edges {
+              node {
+                ... on PullRequest {
+                  author {
+                    login
+                  }
                 }
               }
             }
           }
         }
       `,
+      // variables: { owner: "ThanosDodd", name: "better-first-contributions" },
     });
 
     return data;
@@ -61,9 +91,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSession({ req });
 
   if (session && req.method === "POST") {
-    console.log(req.body);
+    const userRequestingMerge = req.body.userName;
 
-    const results = await run();
+    const results = await run(userRequestingMerge);
 
     res.status(200).json({ results: results });
   }
