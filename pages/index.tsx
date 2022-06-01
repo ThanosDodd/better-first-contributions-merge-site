@@ -34,7 +34,12 @@ const Home: NextPage = ({
     })
       .then((res) => res.json())
       .then((json) => {
-        console.log("API data", json.results);
+        //No Pull Requests
+        if (json.results === 0) {
+          alert("Empty");
+        }
+
+        console.log(json);
       });
 
   return (

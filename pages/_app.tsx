@@ -12,15 +12,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
 
 export default MyApp;
 
-//TODO Search Pull requests under username
-
-//TODO Only one pull request per user
-
-//TODO Simplify Queries
-//TODO Success or failure toasts
 //TODO useEffect for initial repositories data
+//TODO Simplify Queries
 
-// User does his thing and makes a pull request
-//TODO User goes to the website and requests a merge (something I should be able to do for multiple)
-//TODO If it's his first and only request AND is mergeable -> merge (message)
-//TODO If he has already contributed close the request (message)
+//TODO admin close duplicates and merge multiple

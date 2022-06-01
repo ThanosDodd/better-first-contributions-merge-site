@@ -31,37 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       cache: new InMemoryCache(),
     });
 
-    const { data } = await client.query({
-      // query: gql`
-      //   query RepoFiles($owner: String!, $name: String!) {
-      //     repository(owner: $owner, name: $name) {
-      //       object(expression: "HEAD:") {
-      //         ... on Tree {
-      //           entries {
-      //             name
-      //             type
-      //             object {
-      //               ... on Blob {
-      //                 byteSize
-      //               }
-      //               ... on Tree {
-      //                 entries {
-      //                   name
-      //                   type
-      //                   object {
-      //                     ... on Blob {
-      //                       byteSize
-      //                     }
-      //                   }
-      //                 }
-      //               }
-      //             }
-      //           }
-      //         }
-      //       }
-      //     }
-      //   }
-      // `,
+    const searchUserPullRequests = await client.query({
       query: gql`
         {
           search(
@@ -82,10 +52,70 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           }
         }
       `,
-      // variables: { owner: "ThanosDodd", name: "better-first-contributions" },
     });
 
-    return data;
+    const userPullRequestsResults = searchUserPullRequests.data.search.edges;
+
+    //No Pull Requests
+    if (userPullRequestsResults.length === 0) {
+      return 0;
+    }
+
+    //TODO Find Branch Name
+    // {
+    //   repository(owner: "WrathOfThanos", name: "better-first-contributions") {
+    //     refs(first: 1, refPrefix: "refs/heads/") {
+    //       edges {
+    //         node {
+    //           name
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    const searchUserPullRequestFileSize = await client.query({
+      query: gql`
+        query RepoFiles($owner: String!, $name: String!) {
+          repository(owner: $owner, name: $name) {
+            object(expression: "HEAD:") {
+              ... on Tree {
+                entries {
+                  name
+                  type
+                  object {
+                    ... on Blob {
+                      byteSize
+                    }
+                    ... on Tree {
+                      entries {
+                        name
+                        type
+                        object {
+                          ... on Blob {
+                            byteSize
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: { owner: "ThanosDodd", name: "better-first-contributions" },
+    });
+
+    //One+ Pull Request
+    //TODO Check that there haven't been any merged pull requests from the same user (are-> close all requests, return with message, aren't-> continue)
+    //TODO Check that the file has the same name as the user (has-> return with message, hasn't-> continue)
+    //TODO Check that hte file is 1 byte in size (is-> return with message, isn't-> continue)
+    //TODO Merge Request
+    //TODO Close all subsequent Pull Requests (Inform the community)
+
+    return userPullRequestsResults;
   }
 
   const session = await getSession({ req });
@@ -96,5 +126,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const results = await run(userRequestingMerge);
 
     res.status(200).json({ results: results });
+
+    //TODO Failure message
   }
 };
