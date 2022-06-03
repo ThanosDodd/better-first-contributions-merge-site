@@ -1,3 +1,5 @@
+import type { NextApiRequest, NextApiResponse } from "next";
+
 import {
   ApolloClient,
   createHttpLink,
@@ -5,10 +7,11 @@ import {
   InMemoryCache,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
+
 import { getSession } from "next-auth/react";
-import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  //Das Function
   async function run(mergeAuthor: string) {
     const authToken = process.env.GITHUB_TOKEN;
 
@@ -140,6 +143,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return userPullRequestResults;
   }
 
+  //Check that user is logged in before making an API call
   const session = await getSession({ req });
 
   if (session && req.method === "POST") {
@@ -148,7 +152,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const results = await run(userRequestingMerge);
 
     res.status(200).json({ results: results });
-
     //TODO Failure message 403 or whatever it is
   }
 };

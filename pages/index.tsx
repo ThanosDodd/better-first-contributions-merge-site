@@ -95,7 +95,7 @@ export const getStaticProps: GetStaticProps = async () => {
     cache: new InMemoryCache(),
   });
 
-  const badData = await client.query({
+  const firstContr = await client.query({
     query: gql`
       {
         node(id: "MDEwOlJlcG9zaXRvcnk2ODcyMDg2Nw==") {
@@ -123,7 +123,7 @@ export const getStaticProps: GetStaticProps = async () => {
     `,
   });
 
-  const goodData = await client.query({
+  const firstContrBetter = await client.query({
     query: gql`
       {
         node(id: "R_kgDOHZB9Vg") {
@@ -151,7 +151,7 @@ export const getStaticProps: GetStaticProps = async () => {
     `,
   });
 
-  const queryResults: Result[] = [badData.data, goodData.data];
+  const queryResults: Result[] = [firstContr.data, firstContrBetter.data];
 
   return {
     props: {
