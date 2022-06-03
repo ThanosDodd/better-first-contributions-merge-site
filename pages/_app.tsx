@@ -12,7 +12,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
 
 export default MyApp;
 
-//TODO useEffect for initial repositories data
-//TODO Simplify Queries
+//TODO Strip down Queries
 
 //TODO admin close duplicates and merge multiple
