@@ -14,11 +14,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   //Das Function
   async function run(mergeAuthor: string) {
     const authToken = process.env.GITHUB_TOKEN;
-
     const httpLink = createHttpLink({
       uri: "https://api.github.com/graphql",
     });
-
     const authLink = setContext((_, { headers }) => {
       const token = authToken;
       return {
@@ -28,12 +26,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       };
     });
-
     const client = new ApolloClient({
       link: authLink.concat(httpLink),
       cache: new InMemoryCache(),
     });
 
+    //*Search for an open pull request by the logged in user
     const searchUserPullRequest = await client.query({
       query: gql`
         {
@@ -57,15 +55,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
       `,
     });
-
     const userPullRequestResults = searchUserPullRequest.data.search.edges;
 
-    //No Pull Requests
+    //*No pull requests - return
     if (userPullRequestResults.length === 0) {
       return 0;
     }
 
-    //There is a Pull Request
+    //*There is a pull request
+    //*Find the user's branch name for the pull request
     const findPullRequestBranchName = await (
       await client.query({
         query: gql`
@@ -86,9 +84,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       `,
       })
     ).data.repository.refs.edges[0].node.name;
-
+    //add a colon
     const branchNameWithColon = `${findPullRequestBranchName}:`;
 
+    //*Get the filenames
     const pullRequestFilesTree = await client.query({
       query: gql`
         query RepoFiles($owner: String!, $name: String!, $branchName: String!) {
@@ -126,19 +125,26 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         branchName: branchNameWithColon,
       },
     });
-
     const prEntries = pullRequestFilesTree.data.repository.object.entries;
     const filesFolderEntries = prEntries.find(
       (e: any) => e.name === "Your Files My Children"
     ).object.entries;
+    const refinedFilesFolderEntries = filesFolderEntries.map(
+      (e: { name: any }) => e.name.replace(/\..+/, "")
+    );
 
-    console.log(filesFolderEntries);
+    //*Check that the file has the same name as the user (hasn't-> return with message, has-> continue)
+    const userNamedFile = refinedFilesFolderEntries.filter(
+      (e: string) => e === mergeAuthor
+    ).length;
+    if (userNamedFile === 0) {
+      return "No user-named file found";
+    }
 
     //TODO Check that there hasn't been a merged pull request from the same user (has-> close request, return with message, hasn't-> continue)
-    //TODO Check that the file has the same name as the user (hasn't-> return with message, has-> continue)
-    //TODO Check that hte file is 1 byte in size (isn't-> return with message, is-> continue)
+    //TODO Check that the file is 1 byte in size (isn't-> return with message, is-> continue)
     //TODO Merge Request
-    //TODO Only latest branch will be considered - Inform the community, add to video
+    //TODO Only latest branch will be considered - Inform the community
 
     return userPullRequestResults;
   }

@@ -2,6 +2,8 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import type { NextPage } from "next";
 import Head from "next/head";
 
+import { useEffect, useState } from "react";
+
 import {
   ApolloClient,
   createHttpLink,
@@ -20,9 +22,12 @@ type Result = {
 const Home: NextPage = ({
   queryResults,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
-  //TODO useEffect for getStaticProps
-  const returnedData = queryResults;
-  console.log("Got Static Props");
+  const [propData, setpropData] = useState<any>(queryResults);
+
+  useEffect(() => {
+    setpropData(queryResults);
+    console.log("Got Static Props");
+  }, [propData]);
 
   //NextAuth
   const { data: session } = useSession();
@@ -43,7 +48,11 @@ const Home: NextPage = ({
           alert("Empty");
         }
 
-        console.log("json results");
+        if (json.results === "No user-named file found") {
+          alert("No user-named file found");
+        }
+
+        console.log(json.results);
       });
 
   return (
@@ -56,15 +65,13 @@ const Home: NextPage = ({
         />
         {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
-
       {session ? (
         <button onClick={() => signOut()}>Sign Out</button>
       ) : (
         <button onClick={() => signIn()}>Sign In</button>
       )}
-
       {session ? <button onClick={fetcher}>Merge!</button> : <div></div>}
-
+      {/* TODO graph the data */}
       <div>Yes</div>
     </div>
   );
