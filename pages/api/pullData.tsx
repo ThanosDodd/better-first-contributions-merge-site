@@ -142,6 +142,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return "No user-named file found";
     }
 
+    //TODO should propbably check this first
     //*Check that there hasn't been a merged pull request from the same user
     const repoFilesTree = await client.query({
       query: gql`

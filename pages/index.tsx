@@ -26,7 +26,6 @@ const Home: NextPage = ({
 
   useEffect(() => {
     setpropData(queryResults);
-    console.log("Got Static Props");
   }, [propData]);
 
   //NextAuth
@@ -66,9 +65,9 @@ const Home: NextPage = ({
         <button onClick={() => signIn()}>Sign In</button>
       )}
       {session ? <button onClick={fetcher}>Merge!</button> : <div></div>}
-      {/* TODO graph the data */}
-      <div>Yes</div>
     </div>
+
+    //TODO chart
   );
 };
 
