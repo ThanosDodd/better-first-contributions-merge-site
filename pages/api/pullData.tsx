@@ -5,6 +5,7 @@ import {
   createHttpLink,
   gql,
   InMemoryCache,
+  useMutation,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
@@ -133,7 +134,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       (e: { name: any }) => e.name.replace(/\..+/, "")
     );
 
-    //*Check that the file has the same name as the user (hasn't-> return with message, has-> continue)
+    //*Check that the file has the same name as the user
     const userNamedFile = refinedFilesFolderEntries.filter(
       (e: string) => e === mergeAuthor
     ).length;
@@ -141,17 +142,98 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return "No user-named file found";
     }
 
-    //TODO Check that there hasn't been a merged pull request from the same user (has-> close request, return with message, hasn't-> continue)
-    //TODO Check that the file is 1 byte in size (isn't-> return with message, is-> continue)
-    //TODO Merge Request
-    //TODO Only latest branch will be considered - Inform the community
+    //*Check that there hasn't been a merged pull request from the same user
+    const repoFilesTree = await client.query({
+      query: gql`
+        query RepoFiles($owner: String!, $name: String!, $branchName: String!) {
+          repository(owner: $owner, name: $name) {
+            object(expression: $branchName) {
+              ... on Tree {
+                entries {
+                  name
+                  type
+                  object {
+                    ... on Blob {
+                      byteSize
+                    }
+                    ... on Tree {
+                      entries {
+                        name
+                        type
+                        object {
+                          ... on Blob {
+                            byteSize
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        owner: "ThanosDodd",
+        name: "better-first-contributions",
+        branchName: "main:",
+      },
+    });
+    const repoEntries = repoFilesTree.data.repository.object.entries;
+    const repoFilesFolderEntries = repoEntries.find(
+      (e: any) => e.name === "Your Files My Children"
+    ).object.entries;
+    const refinedRepoFilesFolderEntries = repoFilesFolderEntries.map(
+      (e: { name: any }) => e.name.replace(/\..+/, "")
+    );
+    if (
+      refinedRepoFilesFolderEntries.find((e: string) => e === mergeAuthor) ===
+      mergeAuthor
+    ) {
+      return "This username already has a merged pull request";
+    }
 
-    return userPullRequestResults;
+    //*Check that the file is 1 byte in size
+    const fileByteSize = filesFolderEntries.filter(
+      (e: { name: string }) => e.name.replace(/\..+/, "") === mergeAuthor
+    )[0].object.byteSize;
+    if (fileByteSize !== 1) {
+      return "File byteSize is not 1";
+    }
+
+    //*Merge Request
+    const pullRequestId = userPullRequestResults[0].node.id;
+    const mutation = gql`
+      mutation mergePullRequest($input: MergePullRequestInput!) {
+        mergePullRequest(input: $input) {
+          pullRequest {
+            merged
+            mergedAt
+            state
+            url
+          }
+        }
+      }
+    `;
+    const mergeRequestVariables = {
+      input: {
+        pullRequestId: pullRequestId,
+      },
+    };
+    const attemptMerge = await client.mutate({
+      mutation: mutation,
+      variables: mergeRequestVariables,
+    });
+    if (attemptMerge.data.mergePullRequest.pullRequest.merged === true) {
+      return "Your Pull Request has been Merged!";
+    } else {
+      return "Something went wrong, please try again";
+    }
   }
 
   //Check that user is logged in before making an API call
   const session = await getSession({ req });
-
   if (session && req.method === "POST") {
     const userRequestingMerge = req.body.userName;
 

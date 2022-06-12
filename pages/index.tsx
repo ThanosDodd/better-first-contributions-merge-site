@@ -43,16 +43,11 @@ const Home: NextPage = ({
     })
       .then((res) => res.json())
       .then((json) => {
-        //No Pull Requests
         if (json.results === 0) {
-          alert("Empty");
+          alert("No Pull Requests by this user");
+        } else {
+          alert(json.results);
         }
-
-        if (json.results === "No user-named file found") {
-          alert("No user-named file found");
-        }
-
-        console.log(json.results);
       });
 
   return (
