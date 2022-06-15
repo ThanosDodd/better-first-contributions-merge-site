@@ -2,7 +2,7 @@ import { GetStaticProps, InferGetStaticPropsType } from "next";
 import type { NextPage } from "next";
 import Head from "next/head";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   ApolloClient,
@@ -13,6 +13,17 @@ import {
 import { setContext } from "@apollo/client/link/context";
 
 import { useSession, signIn, signOut } from "next-auth/react";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 //GetStaticProps Result Type
 type Result = {
@@ -49,8 +60,39 @@ const Home: NextPage = ({
         }
       });
 
+  const foo = [
+    {
+      name: "issues",
+      us: propData[1].node.issues.totalCount,
+      them: propData[0].node.issues.totalCount,
+    },
+    {
+      name: "pullRequests",
+      us: propData[1].node.pullRequests.totalCount,
+      them: propData[0].node.pullRequests.totalCount,
+    },
+  ];
+
+  const bar = [
+    {
+      name: "stargazers",
+      us: propData[1].node.stargazers.totalCount,
+      them: propData[0].node.stargazers.totalCount,
+    },
+    {
+      name: "watchers",
+      us: propData[1].node.watchers.totalCount,
+      them: propData[0].node.watchers.totalCount,
+    },
+    {
+      name: "forks",
+      us: propData[1].node.forks.totalCount,
+      them: propData[0].node.forks.totalCount,
+    },
+  ];
+
   return (
-    <div>
+    <>
       <Head>
         <title>Better First Contributions</title>
         <meta
@@ -64,10 +106,50 @@ const Home: NextPage = ({
       ) : (
         <button onClick={() => signIn()}>Sign In</button>
       )}
-      {session ? <button onClick={fetcher}>Merge!</button> : <div></div>}
-    </div>
+      {session ? <button onClick={fetcher}>Merge!</button> : " "}
 
-    //TODO chart
+      <div>
+        <ResponsiveContainer width="99%" height={300}>
+          <BarChart
+            data={foo}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="us" fill="#8884d8" />
+            <Bar dataKey="them" fill="#82ca9d" />
+          </BarChart>
+        </ResponsiveContainer>
+
+        <ResponsiveContainer width="99%" aspect={3}>
+          <BarChart
+            data={bar}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="us" fill="#8884d8" />
+            <Bar dataKey="them" fill="#82ca9d" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </>
   );
 };
 
