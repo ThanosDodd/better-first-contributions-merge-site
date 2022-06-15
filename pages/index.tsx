@@ -93,10 +93,12 @@ const Home: NextPage = ({
     },
   ];
 
-  const [superWidth, setSuperWidth] = useState(500);
+  const [superWidth, setWidth] = useState(760); // default width, detect on server.
+  const handleResize = () => setWidth(window.innerWidth);
   useEffect(() => {
-    window.addEventListener("resize", () => setSuperWidth(window.innerWidth));
-  }, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
 
   return (
     <>
@@ -115,7 +117,10 @@ const Home: NextPage = ({
       )}
       {session ? <button onClick={fetcher}>Merge!</button> : " "}
 
-      <div style={{ width: superWidth, height: "80vh" }}>
+      <div
+        style={{ width: superWidth, height: "60vh" }}
+        onChange={handleResize}
+      >
         <div className={styles.questionContainer}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
