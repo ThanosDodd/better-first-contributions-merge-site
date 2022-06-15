@@ -25,6 +25,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+import styles from "../styles/Home.module.css";
+
 //GetStaticProps Result Type
 type Result = {
   node: object;
@@ -91,6 +93,11 @@ const Home: NextPage = ({
     },
   ];
 
+  const [superWidth, setSuperWidth] = useState(500);
+  useEffect(() => {
+    window.addEventListener("resize", () => setSuperWidth(window.innerWidth));
+  }, []);
+
   return (
     <>
       <Head>
@@ -108,46 +115,48 @@ const Home: NextPage = ({
       )}
       {session ? <button onClick={fetcher}>Merge!</button> : " "}
 
-      <div>
-        <ResponsiveContainer width="99%" height={300}>
-          <BarChart
-            data={foo}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="us" fill="#8884d8" />
-            <Bar dataKey="them" fill="#82ca9d" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div style={{ width: superWidth, height: "80vh" }}>
+        <div className={styles.questionContainer}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={foo}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="us" fill="#8884d8" />
+              <Bar dataKey="them" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
 
-        <ResponsiveContainer width="99%" aspect={3}>
-          <BarChart
-            data={bar}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="us" fill="#8884d8" />
-            <Bar dataKey="them" fill="#82ca9d" />
-          </BarChart>
-        </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={bar}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="us" fill="#8884d8" />
+              <Bar dataKey="them" fill="#82ca9d" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </>
   );
