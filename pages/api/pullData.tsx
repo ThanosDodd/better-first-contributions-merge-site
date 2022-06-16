@@ -5,7 +5,6 @@ import {
   createHttpLink,
   gql,
   InMemoryCache,
-  useMutation,
 } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
@@ -31,6 +30,58 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       link: authLink.concat(httpLink),
       cache: new InMemoryCache(),
     });
+
+    //*Check that there hasn't been a merged pull request from the same user
+    const repoFilesTree = await client.query({
+      query: gql`
+        query RepoFiles($owner: String!, $name: String!, $branchName: String!) {
+          repository(owner: $owner, name: $name) {
+            object(expression: $branchName) {
+              ... on Tree {
+                entries {
+                  name
+                  type
+                  object {
+                    ... on Blob {
+                      byteSize
+                    }
+                    ... on Tree {
+                      entries {
+                        name
+                        type
+                        object {
+                          ... on Blob {
+                            byteSize
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        owner: "ThanosDodd",
+        name: "better-first-contributions",
+        branchName: "main:",
+      },
+    });
+    const repoEntries = repoFilesTree.data.repository.object.entries;
+    const repoFilesFolderEntries = repoEntries.find(
+      (e: any) => e.name === "Your Files My Children"
+    ).object.entries;
+    const refinedRepoFilesFolderEntries = repoFilesFolderEntries.map(
+      (e: { name: any }) => e.name.replace(/\..+/, "")
+    );
+    if (
+      refinedRepoFilesFolderEntries.find((e: string) => e === mergeAuthor) ===
+      mergeAuthor
+    ) {
+      return "This username already has a merged pull request";
+    }
 
     //*Search for an open pull request by the logged in user
     const searchUserPullRequest = await client.query({
@@ -60,7 +111,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     //*No pull requests - return
     if (userPullRequestResults.length === 0) {
-      return 0;
+      return "No pull requests by this user";
     }
 
     //*There is a pull request
@@ -142,59 +193,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return "No user-named file found";
     }
 
-    //TODO should propbably check this first
-    //*Check that there hasn't been a merged pull request from the same user
-    const repoFilesTree = await client.query({
-      query: gql`
-        query RepoFiles($owner: String!, $name: String!, $branchName: String!) {
-          repository(owner: $owner, name: $name) {
-            object(expression: $branchName) {
-              ... on Tree {
-                entries {
-                  name
-                  type
-                  object {
-                    ... on Blob {
-                      byteSize
-                    }
-                    ... on Tree {
-                      entries {
-                        name
-                        type
-                        object {
-                          ... on Blob {
-                            byteSize
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `,
-      variables: {
-        owner: "ThanosDodd",
-        name: "better-first-contributions",
-        branchName: "main:",
-      },
-    });
-    const repoEntries = repoFilesTree.data.repository.object.entries;
-    const repoFilesFolderEntries = repoEntries.find(
-      (e: any) => e.name === "Your Files My Children"
-    ).object.entries;
-    const refinedRepoFilesFolderEntries = repoFilesFolderEntries.map(
-      (e: { name: any }) => e.name.replace(/\..+/, "")
-    );
-    if (
-      refinedRepoFilesFolderEntries.find((e: string) => e === mergeAuthor) ===
-      mergeAuthor
-    ) {
-      return "This username already has a merged pull request";
-    }
-
     //*Check that the file is 1 byte in size
     const fileByteSize = filesFolderEntries.filter(
       (e: { name: string }) => e.name.replace(/\..+/, "") === mergeAuthor
@@ -236,11 +234,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   //Check that user is logged in before making an API call
   const session = await getSession({ req });
   if (session && req.method === "POST") {
-    const userRequestingMerge = req.body.userName;
+    try {
+      const userRequestingMerge = req.body.userName;
+      const results = await run(userRequestingMerge);
 
-    const results = await run(userRequestingMerge);
-
-    res.status(200).json({ results: results });
-    //TODO Failure message 403 or whatever it is
+      res.status(200).json({ results: results });
+    } catch (err) {
+      res.status(500).json({ results: "failed to merge" });
+    }
   }
 };

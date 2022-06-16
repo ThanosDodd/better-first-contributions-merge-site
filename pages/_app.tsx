@@ -12,8 +12,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
 
 export default MyApp;
 
-//TODO Strip down Queries
-
 //TODO admin close duplicates and merge multiple
 
 //TODO github dev url

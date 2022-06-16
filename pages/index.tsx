@@ -55,8 +55,8 @@ const Home: NextPage = ({
     })
       .then((res) => res.json())
       .then((json) => {
-        if (json.results === 0) {
-          alert("No Pull Requests by this user");
+        if (json.results === "failed to merge") {
+          alert("Something went wrong, please try again");
         } else {
           alert(json.results);
         }
@@ -93,13 +93,6 @@ const Home: NextPage = ({
     },
   ];
 
-  const [superWidth, setWidth] = useState(760); // default width, detect on server.
-  const handleResize = () => setWidth(window.innerWidth);
-  useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  });
-
   return (
     <>
       <Head>
@@ -111,58 +104,68 @@ const Home: NextPage = ({
         {/* <link rel="icon" href="/favicon.ico" /> */}
       </Head>
       {session ? (
-        <button onClick={() => signOut()}>Sign Out</button>
+        <button className={styles.buttonClass} onClick={() => signOut()}>
+          Sign Out
+        </button>
       ) : (
-        <button onClick={() => signIn()}>Sign In</button>
+        <button className={styles.buttonClass} onClick={() => signIn()}>
+          Sign In
+        </button>
       )}
-      {session ? <button onClick={fetcher}>Merge!</button> : " "}
+      {session ? (
+        <button
+          className={`${styles.buttonClass} ${styles.buttonMerge}`}
+          onClick={fetcher}
+        >
+          Merge!
+        </button>
+      ) : (
+        " "
+      )}
 
-      <div
-        style={{ width: superWidth, height: "60vh" }}
-        onChange={handleResize}
-      >
-        <div className={styles.questionContainer}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={foo}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="us" fill="#8884d8" />
-              <Bar dataKey="them" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
+      <h1>Where we excel</h1>
+      <ResponsiveContainer width="90%" aspect={3}>
+        <BarChart
+          style={{ fontFamily: "monospace" }}
+          data={foo}
+          margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="us" fill="#ff5bb0" />
+          <Bar dataKey="them" fill="#9a460aab" />
+        </BarChart>
+      </ResponsiveContainer>
 
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={bar}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="us" fill="#8884d8" />
-              <Bar dataKey="them" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <h1 style={{ marginTop: "4%" }}>Where we go</h1>
+      <ResponsiveContainer width="90%" aspect={3}>
+        <BarChart
+          style={{ fontFamily: "monospace" }}
+          data={bar}
+          margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="us" fill="#ff5bb0" />
+          <Bar dataKey="them" fill="#9a460aab" />
+        </BarChart>
+      </ResponsiveContainer>
     </>
   );
 };
