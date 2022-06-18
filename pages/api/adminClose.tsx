@@ -92,47 +92,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     }
 
-    //*Search for first 100 open pull requests
-    const searchPullRequests = await client.query({
-      query: gql`
-        {
-          search(
-            query: "repo:ThanosDodd/better-first-contributions type:pr is:open"
-            type: ISSUE
-            first: 100
-          ) {
-            issueCount
-            edges {
-              node {
-                ... on PullRequest {
-                  author {
-                    login
-                  }
-                  id
-                }
-              }
-            }
-          }
-        }
-      `,
-    });
-    const pullRequestsResults = searchPullRequests.data.search.edges;
-    console.log("here");
-
-    //*No pull requests - return
-    if (pullRequestsResults.length === 0) {
-      return "No pull requests";
-    }
-
-    type userElement = {
-      node: {
-        author: {
-          login: string;
-        };
-        id: string;
-      };
-    };
-
     //*Check that there hasn't been a merged pull request from the same user
     async function checkAlreadyContributed(element: userElement) {
       const repoFilesTree = await client.query({
@@ -293,10 +252,52 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
     }
 
-    //*There are pull requests
-    pullRequestsResults.array.forEach((element: userElement) => {
-      checkAlreadyContributed(element);
-    });
+    //*Search for first 100 open pull requests
+    const pullRequestsResults = await (
+      await client.query({
+        query: gql`
+          {
+            search(
+              query: "repo:ThanosDodd/better-first-contributions type:pr is:open"
+              type: ISSUE
+              first: 100
+            ) {
+              issueCount
+              edges {
+                node {
+                  ... on PullRequest {
+                    author {
+                      login
+                    }
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `,
+      })
+    ).data.search.edges;
+
+    //Pull Requests Data Type
+    type userElement = {
+      node: {
+        author: {
+          login: string;
+        };
+        id: string;
+      };
+    };
+
+    //*No pull requests - return
+    if (pullRequestsResults.length === 0) {
+      return "No pull requests";
+    } else {
+      //*There are pull requests
+      for (const element of pullRequestsResults) {
+        checkAlreadyContributed(element);
+      }
+    }
   }
 
   //Check that user is logged in before making an API call
