@@ -15,7 +15,6 @@
     "next-auth": "^4.4.0",
     "react": "18.1.0",
     "react-dom": "18.1.0",
-    "react-resize-detector": "^7.1.2",
     "recharts": "^2.1.10"
   },
   "devDependencies": {

@@ -105,6 +105,7 @@ const Home: NextPage = ({
       <a
         href="https://github.com/ThanosDodd/better-first-contributions"
         target="_blank"
+        rel="noreferrer"
       >
         <img src="/github.svg" className={styles.gitHub}></img>
       </a>
