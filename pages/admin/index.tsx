@@ -31,7 +31,7 @@ const AdminPage: NextPage = () => {
           name="description"
           content="Learn how to contribute to Open Source without the fear of failure"
         />
-        {/* <link rel="icon" href="/favicon.ico" /> */}
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       {session?.user?.name === "ThanosDodd" ? (

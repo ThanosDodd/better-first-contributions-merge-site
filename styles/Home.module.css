@@ -1,3 +1,19 @@
+.gitHub {
+  width: 3%;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  filter: invert(46%) sepia(66%) saturate(821%) hue-rotate(152deg)
+    brightness(96%) contrast(106%);
+  transition: 1s;
+}
+
+.gitHub:hover {
+  filter: invert(28%) sepia(86%) saturate(2017%) hue-rotate(281deg)
+    brightness(100%) contrast(104%);
+  cursor: pointer;
+}
+
 .buttonClass {
   background: linear-gradient(#5ad612, #09ba6a);
   color: hsla(0, 0%, 100%, 0.94);

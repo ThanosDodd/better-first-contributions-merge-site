@@ -101,8 +101,16 @@ const Home: NextPage = ({
           name="description"
           content="Learn how to contribute to Open Source without the fear of failure"
         />
-        {/* <link rel="icon" href="/favicon.ico" /> */}
+        <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      <a
+        href="https://github.com/ThanosDodd/better-first-contributions"
+        target="_blank"
+      >
+        <img src="/github.svg" className={styles.gitHub}></img>
+      </a>
+
       {session ? (
         <button className={styles.buttonClass} onClick={() => signOut()}>
           Sign Out
@@ -138,7 +146,9 @@ const Home: NextPage = ({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            cursor={{ stroke: "red", strokeWidth: 7, fill: "#70ffffe3" }}
+          />
           <Legend />
           <Bar dataKey="us" fill="#ff5bb0" />
           <Bar dataKey="them" fill="#9a460aab" />
@@ -160,7 +170,9 @@ const Home: NextPage = ({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip />
+          <Tooltip
+            cursor={{ stroke: "red", strokeWidth: 7, fill: "#70ffffe3" }}
+          />
           <Legend />
           <Bar dataKey="us" fill="#ff5bb0" />
           <Bar dataKey="them" fill="#9a460aab" />
