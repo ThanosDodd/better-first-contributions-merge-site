@@ -11,5 +11,3 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
 }
 
 export default MyApp;
-
-//TODO github dev url
