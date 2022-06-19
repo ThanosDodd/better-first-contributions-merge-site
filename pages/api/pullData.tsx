@@ -80,7 +80,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       refinedRepoFilesFolderEntries.find((e: string) => e === mergeAuthor) ===
       mergeAuthor
     ) {
-      return "This username already has a merged pull request";
+      return "This username already has a merged pull request - In the end, there can only be one successful pull request from any one GitHub account";
     }
 
     //*Search for an open pull request by the logged in user
@@ -100,6 +100,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     login
                   }
                   id
+                  changedFiles
                 }
               }
             }
@@ -111,7 +112,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     //*No pull requests - return
     if (userPullRequestResults.length === 0) {
-      return "No pull requests by this user";
+      return "No pull requests by this user - There just aren't any";
+    }
+    //*More than one file was changed - return
+    if (userPullRequestResults[0].node.changedFiles !== 1) {
+      return "More than one file was changed! - You cheeky sod, thought I wouldn't find out?";
     }
 
     //*There is a pull request
@@ -190,7 +195,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       (e: string) => e === mergeAuthor
     ).length;
     if (userNamedFile === 0) {
-      return "No user-named file found";
+      return "No user-named file found - The file needs to named after you";
     }
 
     //*Check that the file is 1 byte in size
@@ -198,7 +203,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       (e: { name: string }) => e.name.replace(/\..+/, "") === mergeAuthor
     )[0].object.byteSize;
     if (fileByteSize !== 1) {
-      return "File byteSize is not 1";
+      return "File byteSize is not 1 - All you had to do was leave it empty";
     }
 
     //*Merge Request
@@ -225,9 +230,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       variables: mergeRequestVariables,
     });
     if (attemptMerge.data.mergePullRequest.pullRequest.merged === true) {
-      return "Your Pull Request has been Merged!";
+      return "Your Pull Request has been Merged! - Congratulations person!";
     } else {
-      return "Something went wrong, please try again";
+      return "Something went wrong, please try again - Wasn't us, it was the server";
     }
   }
 
@@ -240,7 +245,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       res.status(200).json({ results: results });
     } catch (err) {
-      res.status(500).json({ results: "failed to merge" });
+      res
+        .status(500)
+        .json({ results: "Failed to do things - Connection issue" });
     }
   }
 };

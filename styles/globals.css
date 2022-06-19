@@ -8,3 +8,10 @@ h1 {
   color: rgba(208, 210, 211, 0.674);
   font-family: monospace;
 }
+
+h2 {
+  color: rgba(185, 120, 215, 0.914);
+  width: 60%;
+  font-family: monospace;
+  margin: 0 auto;
+}

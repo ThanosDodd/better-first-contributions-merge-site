@@ -44,6 +44,7 @@ const Home: NextPage = ({
   //NextAuth
   const { data: session } = useSession();
 
+  const [messageToUser, setmessageToUser] = useState("");
   //API fetcher
   const fetcher = () =>
     fetch("/api/pullData", {
@@ -55,11 +56,8 @@ const Home: NextPage = ({
     })
       .then((res) => res.json())
       .then((json) => {
-        if (json.results === "failed to merge") {
-          alert("Something went wrong, please try again");
-        } else {
-          alert(json.results);
-        }
+        setmessageToUser(json.results);
+        alert(json.results);
       });
 
   const foo = [
@@ -130,6 +128,8 @@ const Home: NextPage = ({
       ) : (
         " "
       )}
+
+      <h2> {messageToUser}</h2>
 
       <h1>Where we excel</h1>
       <ResponsiveContainer width="90%" aspect={3}>
