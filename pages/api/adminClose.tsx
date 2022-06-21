@@ -270,6 +270,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                       login
                     }
                     id
+                    changedFiles
                   }
                 }
               }
@@ -295,7 +296,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     } else {
       //*There are pull requests
       for (const element of pullRequestsResults) {
-        checkAlreadyContributed(element);
+        if (element.node.changedFiles !== 1) {
+          closePullRequest(element.node.id);
+        } else {
+          checkAlreadyContributed(element);
+        }
       }
     }
   }
