@@ -130,8 +130,8 @@ const Home: NextPage = ({
         " "
       )}
 
-      <h2>{messageToUser.replace(/.+(?= - )/, "")}</h2>
-      <h3>{messageToUser.replace(/(?<= - ).+/, "")}</h3>
+      <h2>{messageToUser.replace(/(?<= - ).+/, "")}</h2>
+      <h3>{messageToUser.replace(/.+(?= - )/, "")}</h3>
 
       <h1>Where we excel</h1>
       <ResponsiveContainer width="90%" aspect={3}>

@@ -9,7 +9,8 @@ h1 {
   font-family: monospace;
 }
 
-h2 {
+h2,
+h3 {
   color: rgba(185, 120, 215, 0.914);
   width: 60%;
   font-family: monospace;
