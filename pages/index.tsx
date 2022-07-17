@@ -110,6 +110,19 @@ const Home: NextPage = ({
         <img src="/github.svg" className={styles.gitHub}></img>
       </a>
 
+      <h1>
+        Merge your own{" "}
+        <a
+          href="https://github.com/ThanosDodd/better-first-contributions"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {" "}
+          better-first-contributions{" "}
+        </a>
+        pull request
+      </h1>
+
       {session ? (
         <button className={styles.buttonClass} onClick={() => signOut()}>
           Sign Out
