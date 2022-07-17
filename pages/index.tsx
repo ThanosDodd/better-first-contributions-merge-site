@@ -117,9 +117,8 @@ const Home: NextPage = ({
           target="_blank"
           rel="noreferrer"
         >
-          {" "}
-          better-first-contributions{" "}
-        </a>
+          better-first-contributions
+        </a>{" "}
         pull request
       </h1>
 
