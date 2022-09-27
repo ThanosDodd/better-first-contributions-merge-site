@@ -13,7 +13,7 @@ import { getSession } from "next-auth/react";
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   //Das Function
   async function run() {
-    const authToken = process.env.GITHUB_TOKEN;
+    const authToken = process.env.G_HUB_TOKEN;
     const httpLink = createHttpLink({
       uri: "https://api.github.com/graphql",
     });

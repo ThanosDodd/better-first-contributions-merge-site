@@ -200,7 +200,7 @@ export default Home;
 
 //GetStaticProps
 export const getStaticProps: GetStaticProps = async () => {
-  const authToken = process.env.GITHUB_TOKEN;
+  const authToken = process.env.G_HUB_TOKEN;
 
   const httpLink = createHttpLink({
     uri: "https://api.github.com/graphql",
